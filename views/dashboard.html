@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="/Images/lasu-logo.png" type="image/x-icon" />
+    <script defer src="/js/dashboard.js"></script>
+  </head>
+  <body>
+    <!-- Profile + Hamburger Menu -->
+    <!-- <div class="nav-header">
+      <div class="hamburger" onclick="toggleMobileMenu()">☰</div>
+      <div class="profile-icon" onclick="toggleProfileMenu()">👤</div>
+      <div class="profile-menu" id="profileMenu">
+        <a href="#" onclick="openEditProfile()">Edit Profile</a>
+        <a href="/logout">Logout</a>
+      </div>
+    </div>
+
+    <div class="notification-bell" onclick="toggleNotifications()">
+      🔔 <span id="notif-count">0</span>
+    </div>
+    <div class="notification-dropdown" id="notif-dropdown">
+      <h4>Notifications</h4>
+      <ul id="notif-list"></ul>
+    </div> -->
+
+    <!-- Top Bar: Hamburger + Notification + Profile -->
+    <div class="top-bar">
+      <!-- <div class="hamburger" onclick="toggleMobileMenu()">☰</div> -->
+      <div class="hamburger" id="hamburger-menu">☰</div>
+
+      <h6>Device Status: </h6>
+      <p style="font-size: 12px;" id="device-status">Checking status...</p>
+
+      <div class="notif-wrapper" onclick="toggleNotifications()">
+        🔔 <span id="notif-count">0</span>
+      </div>
+
+      <div class="profile-icon" onclick="toggleProfileMenu()">👤</div>
+
+      <div class="profile-menu" id="profileMenu">
+        <a href="#" onclick="openEditProfile()">Edit Profile</a>
+        <a href="/logout">Logout</a>
+      </div>
+    </div>
+
+    <div class="notification-dropdown" id="notif-dropdown">
+      <h4>Notifications</h4>
+      <ul id="notif-list"></ul>
+    </div>
+
+    
+
+    <div class="home-screen">
+      <div class="form-container">
+      <h2>Device Status</h2>
+      <p id="device-status">Checking status...</p>
+    </div>
+
+      <div class="form-container">
+        <h2>Live Video Feed</h2>
+        <div style="text-align: center">
+          <img
+            id="live-stream"
+            src="http://192.168.0.101:8081"
+            alt="Live Stream"
+            style="width: 100%; max-width: 100%; border-radius: 8px"
+          />
+        </div>
+      </div>
+
+      <div class="form-container">
+        <h2>Smart Control Dashboard</h2>
+        <button class="toggle-btn">Turn ON Channel 1</button>
+        <button class="toggle-btn">Turn ON Channel 2</button>
+        <button class="toggle-btn">Turn ON Channel 3</button>
+        <button class="toggle-btn">Turn ON Channel 4</button>
+      </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <!-- <div id="edit-profile-modal" class="modal-overlay">
+      <div class="modal-box">
+        <h3>👤 Edit Profile</h3>
+        <form id="edit-profile-form">
+          <input
+            type="text"
+            name="full_name"
+            placeholder="Full Name"
+            required
+          />
+          <input type="email" name="email" placeholder="Email" required />
+          <div
+            id="qr-reader"
+            style="width: 100%; max-width: 250px; margin: 10px auto"
+          ></div>
+          <input
+            type="text"
+            name="device_id"
+            id="device_id"
+            placeholder="Device ID"
+            readonly
+            required
+          />
+          <button type="submit">Save Changes</button>
+        </form>
+      </div>
+    </div> -->
+
+    <div id="edit-profile-modal" class="modal-overlay">
+      <div class="modal-box">
+        <span class="close-btn" onclick="closeEditModal()">❌</span>
+        <h3>Edit Profile</h3>
+        <form id="edit-profile-form">
+          <input type="text" name="full_name" required />
+          <input type="email" name="email" required />
+          <div
+            id="qr-reader"
+            style="width: 100%; max-width: 300px; margin: auto"
+          ></div>
+          <input type="text" name="device_id" id="device_id" readonly />
+          <button type="submit">Save</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="mobile-sidebar" class="mobile-sidebar">
+      <a href="#">🏠 Dashboard</a>
+      <a href="#" onclick="openEditProfile()">Edit Profile</a>
+      <a href="/logout">Logout</a>
+    </div>
+
+    <!-- scanner script -->
+    <!-- <script>
+      function onScanSuccess(decodedText) {
+        document.getElementById("device_id").value = decodedText;
+        alert("✅ Device scanned: " + decodedText);
+      }
+
+      const qrScanner = new Html5QrcodeScanner("qr-reader", {
+        fps: 10,
+        qrbox: 250,
+      });
+
+      qrScanner.render(onScanSuccess);
+    </script> -->
+  </body>
+</html>

@@ -1,0 +1,500 @@
+/* Base */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    
+    /* color: #ca6060; */
+    
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.form-container {
+    width: 90%;
+    max-width: 400px;
+    padding: 30px;
+    background: rgba(255, 255, 255,0.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    text-align: center;
+}
+
+.form-container2 {
+    width: 90%;
+    max-width: 400px;
+    padding: 30px;
+    /* background: rgba(255, 255, 255, 0.5); */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    text-align: center;
+}
+
+h2 {
+    color: #9E7B1F;
+    margin-bottom: 10px;
+}
+
+input,
+select {
+    width: 90%;
+    padding: 15px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+    .container{
+      position: relative;
+    }
+    .icon {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      color: #666;
+    }
+    .password-container {
+      position: relative;
+      align-items: center;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #666;
+    }
+
+button {
+    width: 100%;
+    padding: 15px;
+    background: #9E7B1F;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #bfa939;
+}
+
+label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #555;
+    display: block;
+    margin-top: 10px;
+}
+
+img.logo {
+    width: 50px;
+    margin-bottom: 20px;
+}
+
+.preview-container img {
+    max-width: 100%;
+    max-height: 150px;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    gap: auto;
+    justify-content: center;
+    width: 100%;
+}
+
+.notification-bell {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+#notif-count {
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 50px;
+    right: 20px;
+    width: 250px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    display: none;
+    z-index: 1000;
+}
+
+.notification-dropdown ul {
+    list-style: none;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.notification-dropdown li {
+    font-size: 12px;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.taglogo{
+    display: flex;
+    /* flex-direction: row; */
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 100%;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.home-screen {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: 20px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* dim background */
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    display: none;
+    /* hide by default */
+}
+
+/* Show modal when this class is added */
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-box {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 350px;
+    width: 100%;
+}
+
+.modal-box h3 {
+    margin-top: 0;
+    color: #218838;
+    font-size: 18px;
+}
+
+.modal-box input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-box button {
+    margin-top: 15px;
+    padding: 12px 20px;
+    background-color: #9E7B1F;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-box button:hover {
+    background-color: #edb832;
+}
+
+.nav-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px;
+    position: relative;
+}
+
+.hamburger {
+    font-size: 24px;
+    margin-right: auto;
+    cursor: pointer;
+    display: none;
+}
+
+.profile-icon {
+    font-size: 22px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.profile-menu {
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    display: none;
+    flex-direction: column;
+    z-index: 999;
+    padding: 10px;
+}
+
+.profile-menu a {
+    text-decoration: none;
+    color: black;
+    padding: 8px 12px;
+    display: block;
+}
+
+.profile-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+.nav-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: #f2f2f2;
+    align-items: center;
+}
+
+.hamburger {
+    font-size: 24px;
+    cursor: pointer;
+    display: none;
+}
+
+.profile-icon {
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.profile-menu {
+    position: absolute;
+    top: 60px;
+    right: 10px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    padding: 10px;
+}
+
+.profile-menu a {
+    display: block;
+    padding: 10px;
+    color: black;
+    text-decoration: none;
+}
+
+.profile-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal-box {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 350px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.modal-box input,
+.modal-box button {
+    width: 100%;
+    margin: 10px 0;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.modal-box button {
+    background-color: #9E7B1F;
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-box button:hover {
+    background-color: #f3bb2f;
+}
+
+/* Fix top bar as a true header */
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+/* Add top margin to rest of the content */
+.home-screen {
+    margin-top: 70px;
+    /* Leaves space for fixed top bar */
+}
+
+.hamburger,
+.profile-icon,
+.notif-wrapper {
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.notif-wrapper {
+    position: relative;
+}
+
+#notif-count {
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 50%;
+    position: absolute;
+    top: -6px;
+    right: -10px;
+}
+
+.profile-menu {
+    position: absolute;
+    top: 60px;
+    right: 10px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    display: none;
+    flex-direction: column;
+    z-index: 2000;
+    padding: 10px;
+}
+
+.profile-menu a {
+    text-decoration: none;
+    color: black;
+    padding: 10px;
+}
+
+.profile-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+.mobile-sidebar {
+    position: fixed;
+    top: 60px;
+    /* below header */
+    left: -100%;
+    width: 70%;
+    max-width: 250px;
+    height: 100%;
+    background: white;
+    border-right: 1px solid #ccc;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: left 0.3s ease-in-out;
+    z-index: 999;
+}
+
+.mobile-sidebar.open {
+    left: 0;
+}
+
+.mobile-sidebar a {
+    display: block;
+    padding: 12px 0;
+    color: #333;
+    text-decoration: none;
+}
+
+.mobile-sidebar a:hover {
+    background-color: #f0f0f0;
+}
+
+@media (max-width: 768px) {
+    .hamburger {
+        display: block;
+    }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .form-container {
+        padding: 20px;
+    }
+
+    .preview-container img {
+        max-height: 100px;
+    }
+
+        .home-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 90%;
+            height: 100%;
+            gap: 20px;
+        }
+}
