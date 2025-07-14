@@ -1,5 +1,6 @@
 const express = require("express");
 const session = require("express-session");
+const pgSession = require("connect-pg-simple")(session);
 const path = require("path");
 const cors = require("cors");
 const createTables = require("./utils/initTable");
@@ -24,17 +25,31 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+//       secure: process.env.NODE_ENV === "production",
+//     },
+//   })
+// );
+
 app.use(
   session({
+    store: new pgSession({ pool }), // make sure pool is from pg
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: false, // true in HTTPS
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
+
 
 // Attach pool to req for global access
 app.use((req, res, next) => {
