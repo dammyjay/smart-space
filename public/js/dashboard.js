@@ -130,14 +130,14 @@ function closeEditModal() {
 }
 
 // Close modal when clicking outside
-window.addEventListener("click", function (e) {
-  const modal = document.getElementById("edit-profile-modal");
-  const box = document.querySelector(".modal-box");
+// window.addEventListener("click", function (e) {
+//   const modal = document.getElementById("edit-profile-modal");
+//   const box = document.querySelector(".modal-box");
 
-  if (modal.style.display === "flex" && !box.contains(e.target)) {
-    closeEditModal();
-  }
-});
+//   if (modal.style.display === "flex" && !box.contains(e.target)) {
+//     closeEditModal();
+//   }
+// });
 
 
 document.getElementById("edit-profile-form").onsubmit = async (e) => {
