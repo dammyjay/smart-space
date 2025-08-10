@@ -265,6 +265,38 @@ exports.getProfile = async (req, res) => {
 };
 
 // Update current user's profile info
+// exports.postProfile = async (req, res) => {
+//   try {
+//     const userId = req.session.user?.id;
+//     if (!userId) return res.status(401).send("Unauthorized");
+
+//     const { full_name, email, device_id } = req.body;
+
+//     // Update user info
+//     await pool.query(
+//       `UPDATE users SET full_name = $1, email = $2, device_id = $3 WHERE id = $4`,
+//       [full_name, email, device_id, userId]
+//     );
+
+//     // Update device_id for this user in devices table (not insert new row)
+//     await pool.query(
+//       `UPDATE devices SET device_id = $1 WHERE user_id = $2`,
+//       [device_id, userId]
+//     );
+
+//     // Update session so changes reflect without re-login
+//     req.session.user.full_name = full_name;
+//     req.session.user.email = email;
+//     req.session.user.device_id = device_id;
+
+//     res.sendStatus(200);
+//     // res.redirect("/dashboard");
+//   } catch (err) {
+//     console.error("❌ Update profile error:", err);
+//     res.status(500).send("Server error updating profile.");
+//   }
+// };
+
 exports.postProfile = async (req, res) => {
   try {
     const userId = req.session.user?.id;
@@ -272,26 +304,43 @@ exports.postProfile = async (req, res) => {
 
     const { full_name, email, device_id } = req.body;
 
+    // Update user info
     await pool.query(
-      `UPDATE users SET full_name = $1, email = $2, device_id = $3 WHERE id = $4`,
+      `UPDATE users 
+       SET full_name = $1, email = $2, device_id = $3 
+       WHERE id = $4`,
       [full_name, email, device_id, userId]
     );
 
+    // Ensure device entry is linked to user
     await pool.query(
-      `INSERT INTO devices (device_id, user_id)
-   VALUES ($1, $2)
-   ON CONFLICT (device_id) DO NOTHING`,
+      `INSERT INTO devices (device_id, user_id, is_default)
+       VALUES ($1, $2, true)
+       ON CONFLICT (device_id) 
+       DO UPDATE SET user_id = EXCLUDED.user_id`,
       [device_id, userId]
     );
 
-    // Update session so changes reflect without re-login
+    // Update session values
     req.session.user.full_name = full_name;
     req.session.user.email = email;
     req.session.user.device_id = device_id;
 
-    res.sendStatus(200);
+    // If it's an AJAX request (modal form via fetch)
+    if (req.xhr || req.headers["content-type"]?.includes("application/json")) {
+      return res.status(200).json({ success: true });
+    }
+
+    // Otherwise (normal form POST)
+    return res.redirect("/dashboard");
   } catch (err) {
     console.error("❌ Update profile error:", err);
+    if (req.xhr || req.headers["content-type"]?.includes("application/json")) {
+      return res
+        .status(500)
+        .json({ success: false, error: "Server error updating profile." });
+    }
     res.status(500).send("Server error updating profile.");
   }
 };
+

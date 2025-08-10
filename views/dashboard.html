@@ -44,6 +44,7 @@
 
       <div class="profile-menu" id="profileMenu">
         <a href="#" onclick="openEditProfile()">Edit Profile</a>
+        <select id="device-selector"></select>
         <a href="/logout">Logout</a>
       </div>
     </div>
@@ -57,9 +58,9 @@
 
     <div class="home-screen">
       <div class="form-container">
-      <h2>Device Status</h2>
-      <p id="device-status">Checking status...</p>
-    </div>
+        <h2>Device Status</h2>
+        <p id="device-status">Checking status...</p>
+      </div>
 
       <div class="form-container">
         <h2>Live Video Feed</h2>
@@ -122,7 +123,7 @@
             id="qr-reader"
             style="width: 100%; max-width: 300px; margin: auto"
           ></div>
-          <input type="text" name="device_id" id="device_id" readonly />
+          <input type="text" name="device_id" id="device_id"  />
           <button type="submit">Save</button>
         </form>
       </div>

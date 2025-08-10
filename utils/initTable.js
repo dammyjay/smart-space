@@ -35,7 +35,8 @@ async function createTables() {
           name TEXT,
           last_seen TIMESTAMP,
           online BOOLEAN DEFAULT FALSE,
-          created_at TIMESTAMP DEFAULT NOW()
+          created_at TIMESTAMP DEFAULT NOW(),
+          is_default BOOLEAN DEFAULT FALSE
       );
     `);
 

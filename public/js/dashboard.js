@@ -5,6 +5,8 @@ const socket = new WebSocket("ws://" + window.location.host);
 const toggles = document.querySelectorAll(".toggle-btn");
 
 // Store status
+let deviceOnline = false;
+let deviceId = null;
 let deviceStates = [false, false, false, false];
 
 socket.onopen = () => {
@@ -13,45 +15,76 @@ socket.onopen = () => {
 
 loadInitialDeviceState();
 
+
 socket.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  if (data.channels) {
-    deviceStates = data.channels;
-    updateUI();
+  try {
+    const data = JSON.parse(event.data);
+    if (data.channels) {
+      console.log("📡 WebSocket update received:", data.channels);
+      deviceStates = data.channels;
+      updateUI();
+    }
+  } catch (err) {
+    console.error("❌ Error parsing WebSocket data:", err);
   }
 };
 
+// =============================
+// Load devices list
+// =============================
+// async function loadInitialDeviceState() {
+//   try {
+//     const res = await fetch("/devices/my-devices");
+//     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+//     const devices = await res.json();
+
+//     deviceSelector.innerHTML = "";
+//     devices.forEach((dev) => {
+//       const option = document.createElement("option");
+//       option.value = dev.device_id;
+//       option.textContent = dev.name || dev.device_id;
+//       if (dev.is_default) option.selected = true;
+//       deviceSelector.appendChild(option);
+//     });
+
+//     if (devices.length > 0) {
+//       deviceId = deviceSelector.value;
+//       fetchDeviceStatus(deviceId);
+//     } else {
+//       document.getElementById("device-status").textContent =
+//         "⚠️ No devices registered";
+//     }
+//   } catch (err) {
+//     console.error("❌ Failed to load devices:", err);
+//   }
+// }
+
+// deviceSelector.addEventListener("change", (e) => {
+//   deviceId = e.target.value;
+//   fetchDeviceStatus(deviceId);
+// });
+
+
 async function loadInitialDeviceState() {
-  const res = await fetch("/devices/status");
-  const data = await res.json();
-  deviceStates = data.channels;
-  updateUI();
+  try {
+    const res = await fetch("/devices/my-status");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    console.log("📡 Initial device status:", data);
+
+    if (data.channels && data.channels.length > 0) {
+      deviceStates = data.channels.map((c) => c.status);
+      updateUI();
+    }
+  } catch (err) {
+    console.error("❌ Failed to load initial device state:", err);
+  }
 }
 
 
-toggles.forEach((btn, index) => {
-  btn.addEventListener("click", () => {
-    fetch("/devices/toggle", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ channelIndex: index }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        deviceStates[index] = data.status;
-        updateUI();
-      });
-  });
-});
+// Fetch notifications and update UI
 
-function updateUI() {
-  toggles.forEach((btn, index) => {
-    btn.textContent = deviceStates[index]
-      ? `Turn OFF Channel ${index + 1}`
-      : `Turn ON Channel ${index + 1}`;
-    btn.className = deviceStates[index] ? "toggle-btn on" : "toggle-btn off";
-  });
-}
 
 async function fetchNotifications() {
   const res = await fetch("/notifications");
@@ -68,15 +101,15 @@ async function fetchNotifications() {
   document.getElementById("notif-count").textContent = data.length;
 }
 
-function toggleNotifications() {
-  const dropdown = document.getElementById("notif-dropdown");
-  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-}
+// function toggleNotifications() {
+//   const dropdown = document.getElementById("notif-dropdown");
+//   dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+// }
 
-function toggleProfileMenu() {
-  const menu = document.getElementById("profileMenu");
-  menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-}
+// function toggleProfileMenu() {
+//   const menu = document.getElementById("profileMenu");
+//   menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+// }
 
 document.addEventListener("DOMContentLoaded", () => {
   document
@@ -84,27 +117,27 @@ document.addEventListener("DOMContentLoaded", () => {
     .addEventListener("click", toggleMobileMenu);
 });
 
-function toggleMobileMenu() {
-  const sidebar = document.getElementById("mobile-sidebar");
-  sidebar.classList.toggle("open");
+// function toggleMobileMenu() {
+//   const sidebar = document.getElementById("mobile-sidebar");
+//   sidebar.classList.toggle("open");
 
-  // Add listener to detect outside clicks
-  if (sidebar.classList.contains("open")) {
-    document.addEventListener("click", handleOutsideClick);
-  } else {
-    document.removeEventListener("click", handleOutsideClick);
-  }
-}
+//   // Add listener to detect outside clicks
+//   if (sidebar.classList.contains("open")) {
+//     document.addEventListener("click", handleOutsideClick);
+//   } else {
+//     document.removeEventListener("click", handleOutsideClick);
+//   }
+// }
 
-function handleOutsideClick(event) {
-  const sidebar = document.getElementById("mobile-sidebar");
-  const hamburger = document.querySelector(".hamburger");
+// function handleOutsideClick(event) {
+//   const sidebar = document.getElementById("mobile-sidebar");
+//   const hamburger = document.querySelector(".hamburger");
 
-  if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
-    sidebar.classList.remove("open");
-    document.removeEventListener("click", handleOutsideClick);
-  }
-}
+//   if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+//     sidebar.classList.remove("open");
+//     document.removeEventListener("click", handleOutsideClick);
+//   }
+// }
 
 
 function openEditProfile() {
@@ -130,14 +163,14 @@ function closeEditModal() {
 }
 
 // Close modal when clicking outside
-// window.addEventListener("click", function (e) {
-//   const modal = document.getElementById("edit-profile-modal");
-//   const box = document.querySelector(".modal-box");
+window.addEventListener("click", function (e) {
+  const modal = document.getElementById("edit-profile-modal");
+  const box = document.querySelector(".modal-box");
 
-//   if (modal.style.display === "flex" && !box.contains(e.target)) {
-//     closeEditModal();
-//   }
-// });
+  if (modal.style.display === "flex" && !box.contains(e.target)) {
+    closeEditModal();
+  }
+});
 
 
 document.getElementById("edit-profile-form").onsubmit = async (e) => {
@@ -172,74 +205,215 @@ document.querySelectorAll("#mobile-sidebar a").forEach((link) => {
   });
 });
 
-// async function fetchDeviceStatus() {
-//   try {
-//     const res = await fetch("/devices/my-status");
-//     if (!res.ok) throw new Error("Not found");
-
-//     const { online, last_seen, device_id } = await res.json();
-
-//     const statusText = online
-//       ? `✅ Online — ${device_id}`
-//       : `❌ Offline — last seen at ${new Date(last_seen).toLocaleTimeString()}`;
-
-//     document.getElementById("device-status").textContent = statusText;
-//   } catch (err) {
-//     document.getElementById("device-status").textContent =
-//       "❌ Unable to load device status";
-//     console.error("Device status error:", err);
-//   }
-// }
-
-// async function fetchDeviceStatus() {
-//   try {
-//     const res = await fetch("/devices/my-status");
-//     const text = await res.text(); // Use text first to debug
-
-//     console.log("Raw response:", text); // debug
-//     const data = JSON.parse(text); // then parse
-
-//     const statusText = data.online
-//       ? `✅ Online — ${data.device_id}`
-//       : `❌ Offline — last seen at ${new Date(
-//           data.last_seen
-//         ).toLocaleTimeString()}`;
-
-//     document.getElementById("device-status").textContent = statusText;
-//   } catch (err) {
-//     console.error("❌ Device status fetch failed:", err);
-//     document.getElementById("device-status").textContent =
-//       "❌ Unable to load device status";
-//   }
-// }
-
-// Function to fetch and display device status
 
 async function fetchDeviceStatus() {
   try {
     const res = await fetch("/devices/my-status");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
     const data = await res.json();
+    deviceId = data.device_id;
+    deviceOnline = data.online;
 
+    // Update device status text
     const statusEl = document.getElementById("device-status");
-
-    if (!data || !data.device_id) {
+    if (!deviceId) {
       statusEl.textContent = "⚠️ No device registered";
-    } else if (data.online) {
-      statusEl.textContent = `🟢 Device (${data.device_id}) is online`;
+    } else if (deviceOnline) {
+      statusEl.textContent = `🟢 Device (${deviceId}) is online`;
     } else {
-      statusEl.textContent = `🔴 Device (${data.device_id}) is offline`;
+      statusEl.textContent = `🔴 Device (${deviceId}) is offline`;
     }
+
+    // Update channel states if returned
+    if (data.channels && data.channels.length > 0) {
+      deviceStates = data.channels.map(c => c.status);
+    }
+    updateUI();
+
   } catch (err) {
-    console.error("❌ Error fetching device status:", err.message);
+    console.error("❌ Error fetching device status:", err);
     document.getElementById("device-status").textContent = "⚠️ Failed to load status";
   }
 }
 
+// =============================
+// Fetch device status
+// =============================
+// async function fetchDeviceStatus(selectedId = deviceId) {
+//   if (!selectedId) return;
 
-document.addEventListener("DOMContentLoaded", () => {
-  fetchDeviceStatus(); // Initial load
-  setInterval(fetchDeviceStatus, 30000); // Refresh every 30 seconds
+//   try {
+//     const res = await fetch(`/devices/status/${selectedId}`);
+//     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+//     const data = await res.json();
+//     deviceId = data.device_id;
+//     deviceOnline = data.online;
+
+//     // Update device status text
+//     const statusEl = document.getElementById("device-status");
+//     if (!deviceId) {
+//       statusEl.textContent = "⚠️ No device registered";
+//     } else if (deviceOnline) {
+//       statusEl.textContent = `🟢 Device (${deviceId}) is online`;
+//     } else {
+//       statusEl.textContent = `🔴 Device (${deviceId}) is offline`;
+//     }
+
+//     // Update channels if available
+//     if (data.channels && data.channels.length > 0) {
+//       deviceStates = data.channels.map(c => c.status);
+//     }
+//     updateUI();
+
+//   } catch (err) {
+//     console.error("❌ Error fetching device status:", err);
+//     document.getElementById("device-status").textContent = "⚠️ Failed to load status";
+//   }
+// }
+
+// Update toggle buttons based on current state
+function updateUI() {
+  toggles.forEach((btn, index) => {
+    if (!deviceOnline) {
+      btn.textContent = `Channel ${index + 1} (Offline)`;
+      btn.className = "toggle-btn off";
+    } else {
+      btn.textContent = deviceStates[index]
+        ? `Turn OFF Channel ${index + 1}`
+        : `Turn ON Channel ${index + 1}`;
+      btn.className = deviceStates[index] ? "toggle-btn on" : "toggle-btn off";
+    }
+  });
+}
+
+// Handle toggle button click
+toggles.forEach((btn, index) => {
+  btn.addEventListener("click", async () => {
+    if (!deviceOnline) {
+      alert("❌ Device is offline. Cannot toggle.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/devices/toggle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ channelIndex: index })
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data = await res.json();
+      deviceStates[index] = data.status;
+      updateUI();
+
+    } catch (err) {
+      console.error("❌ Toggle error:", err);
+    }
+  });
 });
+
+
+// Load immediately + update every 10s
+document.addEventListener("DOMContentLoaded", () => {
+  fetchDeviceStatus();
+  setInterval(fetchDeviceStatus, 10000);
+});
+
+// document.addEventListener("DOMContentLoaded", () => {
+//   fetchDeviceStatus(); // Initial load
+//   setInterval(fetchDeviceStatus, 30000); // Refresh every 30 seconds
+// });
+
+
+// Toggle profile menu
+
+// ===== PROFILE MENU =====
+function toggleProfileMenu() {
+  const menu = document.getElementById("profileMenu");
+  menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+
+  if (menu.style.display === "flex") {
+    document.addEventListener("click", closeProfileMenuOnOutsideClick);
+  } else {
+    document.removeEventListener("click", closeProfileMenuOnOutsideClick);
+  }
+}
+
+function closeProfileMenuOnOutsideClick(event) {
+  const menu = document.getElementById("profileMenu");
+  const profileIcon = document.querySelector(".profile-icon");
+
+  if (!menu.contains(event.target) && !profileIcon.contains(event.target)) {
+    menu.style.display = "none";
+    document.removeEventListener("click", closeProfileMenuOnOutsideClick);
+  }
+}
+
+// Close profile menu after selecting a device
+document.getElementById("device-selector").addEventListener("change", () => {
+  document.getElementById("profileMenu").style.display = "none";
+  document.removeEventListener("click", closeProfileMenuOnOutsideClick);
+});
+
+
+// ===== NOTIFICATION MENU =====
+function toggleNotifications() {
+  const dropdown = document.getElementById("notif-dropdown");
+  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+
+  if (dropdown.style.display === "block") {
+    document.addEventListener("click", closeNotifOnOutsideClick);
+  } else {
+    document.removeEventListener("click", closeNotifOnOutsideClick);
+  }
+}
+
+function closeNotifOnOutsideClick(event) {
+  const dropdown = document.getElementById("notif-dropdown");
+  const notifIcon = document.querySelector(".notif-wrapper");
+
+  if (!dropdown.contains(event.target) && !notifIcon.contains(event.target)) {
+    dropdown.style.display = "none";
+    document.removeEventListener("click", closeNotifOnOutsideClick);
+  }
+}
+
+function toggleMobileMenu() {
+  const sidebar = document.getElementById("mobile-sidebar");
+  sidebar.classList.toggle("open");
+
+  // If opened, listen for outside click
+  if (sidebar.classList.contains("open")) {
+    document.addEventListener("click", handleOutsideClick);
+    attachSidebarLinkEvents();
+  } else {
+    document.removeEventListener("click", handleOutsideClick);
+  }
+}
+
+function handleOutsideClick(event) {
+  const sidebar = document.getElementById("mobile-sidebar");
+  const hamburger = document.querySelector(".hamburger");
+
+  // Close if click is outside both sidebar and hamburger button
+  if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+    sidebar.classList.remove("open");
+    document.removeEventListener("click", handleOutsideClick);
+  }
+}
+
+function attachSidebarLinkEvents() {
+  const links = document.querySelectorAll("#mobile-sidebar a");
+  links.forEach((link) => {
+    link.addEventListener("click", () => {
+      document.getElementById("mobile-sidebar").classList.remove("open");
+      document.removeEventListener("click", handleOutsideClick);
+    });
+  });
+}
 
 
 
