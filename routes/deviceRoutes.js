@@ -275,8 +275,16 @@ router.get("/my-status", async (req, res) => {
     //   [userId]
     // );
 
+      // const deviceResult = await pool.query(
+      //   `SELECT device_id FROM users WHERE id = $1`,
+      //   [userId]
+      // );
+      
       const deviceResult = await pool.query(
-        `SELECT device_id FROM users WHERE id = $1`,
+        `SELECT u.device_id, d.online, d.last_seen
+   FROM users u
+   LEFT JOIN devices d ON u.device_id = d.device_id
+   WHERE u.id = $1`,
         [userId]
       );
 

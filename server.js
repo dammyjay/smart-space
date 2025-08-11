@@ -43,8 +43,14 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    // cookie: {
+    //   secure: false, // true in HTTPS
+    //   maxAge: 24 * 60 * 60 * 1000,
+    // },
+
     cookie: {
-      secure: false, // true in HTTPS
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production", // ✅ must be true for HTTPS
       maxAge: 24 * 60 * 60 * 1000,
     },
   })
