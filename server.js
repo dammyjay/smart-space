@@ -81,6 +81,45 @@ createTables();
 
 startDeviceStatusCron(); // ⏱️ Start checking devices every 1 min
 
+// Route to get camera stream URL
+// app.get("/camera-url", (req, res) => {
+//   res.json({
+//     url: process.env.CAMERA_URL || "http://192.168.0.101:8081/?action=stream"
+//   });
+// });
+
+// Function to check if camera stream is online
+async function isCameraOnline(url) {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000); // 3s timeout
+
+    const res = await fetch(url, { method: "HEAD", signal: controller.signal });
+    clearTimeout(timeout);
+
+    return res.ok;
+  } catch (err) {
+    return false;
+  }
+}
+
+// Camera URL endpoint
+app.get("/camera-url", async (req, res) => {
+  const cameraUrl = process.env.CAMERA_STREAM_URL;
+
+  if (!cameraUrl) {
+    return res.status(500).json({ error: "Camera URL not set" });
+  }
+
+  const online = await isCameraOnline(cameraUrl);
+
+  if (online) {
+    res.json({ url: cameraUrl });
+  } else {
+    res.json({ url: null });
+  }
+});
+
 
 // 🆕 Start WebSocket server
 initWebSocket(server);

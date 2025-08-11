@@ -417,6 +417,93 @@ function attachSidebarLinkEvents() {
   });
 }
 
+// async function checkCameraStream(url) {
+//   try {
+//     const res = await fetch(url, { method: "HEAD" });
+
+//     if (res.ok) {
+//       document.getElementById("live-stream").src = url;
+//       document.getElementById("camera-status").textContent = "📹 Camera online";
+//       document.getElementById("camera-status").style.color = "green";
+//     } else {
+//       throw new Error("Stream not OK");
+//     }
+//   } catch (err) {
+//     document.getElementById("live-stream").src = "";
+//     document.getElementById("camera-status").textContent = "❌ Camera offline";
+//     document.getElementById("camera-status").style.color = "red";
+//   }
+// }
+
+// document.addEventListener("DOMContentLoaded", () => {
+//   // Use your Pi's actual streaming URL here
+//   const cameraUrl = "http://<YOUR-PI-IP-OR-URL>:8081/?action=stream";
+
+//   // First check immediately
+//   checkCameraStream(cameraUrl);
+
+//   // Then check every 10 seconds
+//   setInterval(() => {
+//     checkCameraStream(cameraUrl);
+//   }, 10000);
+// });
+
+
+async function checkCameraStream(url) {
+  const cameraStatusEl = document.getElementById("camera-status");
+  const liveStreamEl = document.getElementById("live-stream");
+
+  // Always reset UI first
+  cameraStatusEl.textContent = "⏳ Checking camera...";
+  cameraStatusEl.style.color = "orange";
+  liveStreamEl.src = "";
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000); // 3s timeout
+
+    const res = await fetch(url, {
+      method: "HEAD",
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      liveStreamEl.src = url;
+      cameraStatusEl.textContent = "📹 Camera online";
+      cameraStatusEl.style.color = "green";
+    } else {
+      throw new Error("Stream not OK");
+    }
+  } catch (err) {
+    cameraStatusEl.textContent = "❌ Camera offline";
+    cameraStatusEl.style.color = "red";
+    liveStreamEl.src = "";
+  }
+}
+
+function initCameraCheck() {
+  fetch("/camera-url")
+    .then((res) => res.json())
+    .then((data) => {
+      if (!data.url) {
+        throw new Error("No camera URL provided by server");
+      }
+      const cameraUrl = data.url;
+      checkCameraStream(cameraUrl);
+      setInterval(() => {
+        checkCameraStream(cameraUrl);
+      }, 10000); // every 10 seconds
+    })
+    .catch((err) => {
+      console.error("❌ Failed to get camera URL:", err);
+      const cameraStatusEl = document.getElementById("camera-status");
+      cameraStatusEl.textContent = "⚠️ Error getting camera URL";
+      cameraStatusEl.style.color = "red";
+    });
+}
+
+document.addEventListener("DOMContentLoaded", initCameraCheck);
 
 
 setInterval(fetchNotifications, 10000); // Update every 10s

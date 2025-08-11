@@ -8,7 +8,6 @@
     <link rel="icon" href="/Images/lasu-logo.png" type="image/x-icon" />
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script defer src="/js/dashboard.js"></script>
-    
   </head>
   <body>
     <!-- Profile + Hamburger Menu -->
@@ -34,8 +33,8 @@
       <!-- <div class="hamburger" onclick="toggleMobileMenu()">☰</div> -->
       <div class="hamburger" id="hamburger-menu">☰</div>
 
-      <h6>Device Status: </h6>
-      <p style="font-size: 12px;" id="device-status">Checking status...</p>
+      <h6>Device Status:</h6>
+      <p style="font-size: 12px" id="device-status">Checking status...</p>
 
       <div class="notif-wrapper" onclick="toggleNotifications()">
         🔔 <span id="notif-count">0</span>
@@ -55,20 +54,33 @@
       <ul id="notif-list"></ul>
     </div>
 
-    
-
     <div class="home-screen">
-      <div class="form-container">
+      <!-- <div class="form-container">
         <h2>Device Status</h2>
         <p id="device-status">Checking status...</p>
-      </div>
+      </div> -->
 
-      <div class="form-container">
+      <!-- For camera -->
+      <!-- <div class="form-container">
         <h2>Live Video Feed</h2>
         <div style="text-align: center">
           <img
             id="live-stream"
             src="http://192.168.0.101:8081"
+            alt="Live Stream"
+            style="width: 100%; max-width: 100%; border-radius: 8px"
+          />
+        </div>
+      </div> -->
+
+      <div class="form-container">
+        <h2>Live Video Feed</h2>
+        <p id="camera-status" style="font-size: 14px; margin-bottom: 5px">
+          Checking camera...
+        </p>
+        <div style="text-align: center">
+          <img
+            id="live-stream"
             alt="Live Stream"
             style="width: 100%; max-width: 100%; border-radius: 8px"
           />
@@ -124,7 +136,7 @@
             id="qr-reader"
             style="width: 100%; max-width: 300px; margin: auto"
           ></div>
-          <input type="text" name="device_id" id="device_id"  />
+          <input type="text" name="device_id" id="device_id" />
           <button type="submit">Save</button>
         </form>
       </div>
