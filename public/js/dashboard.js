@@ -482,26 +482,83 @@ async function checkCameraStream(url) {
   }
 }
 
+// function initCameraCheck() {
+//   fetch("/camera-url")
+//     .then((res) => res.json())
+//     .then((data) => {
+//       if (!data.url) {
+//         throw new Error("No camera URL provided by server");
+//       }
+//       const cameraUrl = data.url;
+//       checkCameraStream(cameraUrl);
+//       setInterval(() => {
+//         checkCameraStream(cameraUrl);
+//       }, 10000); // every 10 seconds
+//     })
+//     .catch((err) => {
+//       console.error("❌ Failed to get camera URL:", err);
+//       const cameraStatusEl = document.getElementById("camera-status");
+//       cameraStatusEl.textContent = "⚠️ Error getting camera URL";
+//       cameraStatusEl.style.color = "red";
+//     });
+// }
+
 function initCameraCheck() {
   fetch("/camera-url")
     .then((res) => res.json())
     .then((data) => {
       if (!data.url) {
-        throw new Error("No camera URL provided by server");
+        // Camera offline
+        document.getElementById("live-stream").src = "";
+        document.getElementById("camera-status").textContent =
+          "❌ Camera offline";
+        document.getElementById("camera-status").style.color = "red";
+        return;
       }
+
+      // Camera online → load stream
       const cameraUrl = data.url;
-      checkCameraStream(cameraUrl);
+      document.getElementById("live-stream").src = cameraUrl;
+      document.getElementById("camera-status").textContent = "📹 Camera online";
+      document.getElementById("camera-status").style.color = "green";
+
+      // Keep checking every 10 seconds
       setInterval(() => {
-        checkCameraStream(cameraUrl);
-      }, 10000); // every 10 seconds
+        fetch("/camera-url")
+          .then((res) => res.json())
+          .then((update) => {
+            if (!update.url) {
+              document.getElementById("live-stream").src = "";
+              document.getElementById("camera-status").textContent =
+                "❌ Camera offline";
+              document.getElementById("camera-status").style.color = "red";
+            } else if (
+              document.getElementById("live-stream").src !== update.url
+            ) {
+              document.getElementById("live-stream").src = update.url;
+              document.getElementById("camera-status").textContent =
+                "📹 Camera online";
+              document.getElementById("camera-status").style.color = "green";
+            }
+          })
+          .catch(() => {
+            document.getElementById("live-stream").src = "";
+            document.getElementById("camera-status").textContent =
+              "⚠️ Error checking camera";
+            document.getElementById("camera-status").style.color = "orange";
+          });
+      }, 10000);
     })
     .catch((err) => {
       console.error("❌ Failed to get camera URL:", err);
-      const cameraStatusEl = document.getElementById("camera-status");
-      cameraStatusEl.textContent = "⚠️ Error getting camera URL";
-      cameraStatusEl.style.color = "red";
+      document.getElementById("camera-status").textContent =
+        "⚠️ Error getting camera URL";
+      document.getElementById("camera-status").style.color = "orange";
     });
 }
+
+document.addEventListener("DOMContentLoaded", initCameraCheck);
+
 
 document.addEventListener("DOMContentLoaded", initCameraCheck);
 
