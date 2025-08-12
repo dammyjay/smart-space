@@ -210,12 +210,24 @@ document.querySelectorAll("#mobile-sidebar a").forEach((link) => {
 
 async function fetchDeviceStatus() {
   try {
-    const res = await fetch("/devices/my-status");
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    // Try to get the selected device from the selector, fallback to default
+    const selector = document.getElementById("device-selector");
+    let selectedId = selector ? selector.value : null;
 
-    const data = await res.json();
+    // If no selector or value, fallback to /devices/my-status
+    let res, data;
+    if (selectedId) {
+      res = await fetch(`/devices/status/${selectedId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
+    } else {
+      res = await fetch("/devices/my-status");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
+    }
+
     deviceId = data.device_id;
-    deviceOnline = data.online;
+    deviceOnline = !!data.online;
 
     // Update device status text
     const statusEl = document.getElementById("device-status");
