@@ -63,6 +63,8 @@ app.use((req, res, next) => {
   next();
 });
 
+app.set("trust proxy", 1);
+
 // Routes
 app.use("/", require("./routes/authRoutes"));
 app.use("/devices", require("./routes/deviceRoutes"));
