@@ -36,7 +36,8 @@ async function createTables() {
           last_seen TIMESTAMP,
           online BOOLEAN DEFAULT FALSE,
           created_at TIMESTAMP DEFAULT NOW(),
-          is_default BOOLEAN DEFAULT FALSE
+          is_default BOOLEAN DEFAULT FALSE,
+          people_count INTEGER DEFAULT 0
       );
     `);
 

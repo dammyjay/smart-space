@@ -123,6 +123,7 @@ const { broadcast } = require("../utils/websocket");
 // });
 
 // routes/deviceRoutes.js (replace your existing /toggle route with this)
+
 router.post("/toggle", async (req, res) => {
   const userId = req.session.user?.id;
   const { channelIndex } = req.body;
@@ -203,59 +204,77 @@ router.post("/toggle", async (req, res) => {
   }
 });
 
+// router.post("/heartbeat", async (req, res) => {
+//   const { device_id } = req.body;
 
-// In routes/deviceRoutes.js or a dedicated espRoutes.js
+//   if (!device_id) return res.status(400).send("Missing device_id");
 
+//   try {
+//     // 1. Check if device exists, else insert
+//     const result = await pool.query(
+//       "SELECT id FROM devices WHERE device_id = $1",
+//       [device_id]
+//     );
+
+//     if (result.rows.length === 0) {
+//       await pool.query(
+//         `INSERT INTO devices (device_id, online, last_seen)
+//          VALUES ($1, TRUE, CURRENT_TIMESTAMP)`,
+//         [device_id]
+//       );
+
+//       // After marking device online:
+//       await pool.query(
+//         `
+//         INSERT INTO channel_status (device_id, channel_index, status)
+//         VALUES
+//           ($1, 0, FALSE),
+//           ($1, 1, FALSE),
+//           ($1, 2, FALSE),
+//           ($1, 3, FALSE)
+//         ON CONFLICT (device_id, channel_index) DO NOTHING
+//       `,
+//         [device_id]
+//       );
+//     } else {
+//       await pool.query(
+//         `UPDATE devices
+//          SET online = TRUE, last_seen = CURRENT_TIMESTAMP
+//          WHERE device_id = $1`,
+//         [device_id]
+//       );
+//     }
+
+//     console.log(`✅ Heartbeat from ${device_id}`);
+//     res.send("✅ Heartbeat received");
+//   } catch (err) {
+//     console.error("❌ Heartbeat error:", err.message);
+//     res.status(500).send("Server error");
+//   }
+// });
 
 router.post("/heartbeat", async (req, res) => {
-  const { device_id } = req.body;
-
+  const { device_id, people_count } = req.body;
   if (!device_id) return res.status(400).send("Missing device_id");
 
   try {
-    // 1. Check if device exists, else insert
-    const result = await pool.query(
-      "SELECT id FROM devices WHERE device_id = $1",
-      [device_id]
+    await pool.query(
+      `INSERT INTO devices (device_id, online, last_seen, people_count)
+       VALUES ($1, TRUE, CURRENT_TIMESTAMP, $2)
+       ON CONFLICT (device_id)
+       DO UPDATE SET online=TRUE, last_seen=CURRENT_TIMESTAMP, people_count=$2`,
+      [device_id, people_count ?? 0]
     );
 
-    if (result.rows.length === 0) {
-      await pool.query(
-        `INSERT INTO devices (device_id, online, last_seen)
-         VALUES ($1, TRUE, CURRENT_TIMESTAMP)`,
-        [device_id]
-      );
-
-      // After marking device online:
-      await pool.query(
-        `
-        INSERT INTO channel_status (device_id, channel_index, status)
-        VALUES 
-          ($1, 0, FALSE),
-          ($1, 1, FALSE),
-          ($1, 2, FALSE),
-          ($1, 3, FALSE)
-        ON CONFLICT (device_id, channel_index) DO NOTHING
-      `,
-        [device_id]
-      );
-    } else {
-      await pool.query(
-        `UPDATE devices
-         SET online = TRUE, last_seen = CURRENT_TIMESTAMP
-         WHERE device_id = $1`,
-        [device_id]
-      );
-    }
-
-    console.log(`✅ Heartbeat from ${device_id}`);
+    console.log(
+      `✅ Heartbeat from ${device_id} (count=${people_count ?? "?"})`
+    );
     res.send("✅ Heartbeat received");
   } catch (err) {
     console.error("❌ Heartbeat error:", err.message);
     res.status(500).send("Server error");
   }
 });
-
 
 router.get("/status", async (req, res) => {
   const device_id = req.query.device_id;

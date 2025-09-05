@@ -32,22 +32,22 @@ loadInitialDeviceState();
 //   }
 // };
 
-socket.onmessage = (event) => {
-  try {
-    const data = JSON.parse(event.data);
-    if (!data.channels) return;
+// socket.onmessage = (event) => {
+//   try {
+//     const data = JSON.parse(event.data);
+//     if (!data.channels) return;
 
-    // Accept array [true,false,...] OR object {"0":true,"1":false,...}
-    if (Array.isArray(data.channels)) {
-      deviceStates = data.channels;
-    } else {
-      deviceStates = [0, 1, 2, 3].map((i) => !!data.channels[i]);
-    }
-    updateUI();
-  } catch (err) {
-    console.error("❌ Error parsing WebSocket data:", err);
-  }
-};
+//     // Accept array [true,false,...] OR object {"0":true,"1":false,...}
+//     if (Array.isArray(data.channels)) {
+//       deviceStates = data.channels;
+//     } else {
+//       deviceStates = [0, 1, 2, 3].map((i) => !!data.channels[i]);
+//     }
+//     updateUI();
+//   } catch (err) {
+//     console.error("❌ Error parsing WebSocket data:", err);
+//   }
+// };
 
 
 
@@ -85,6 +85,28 @@ socket.onmessage = (event) => {
 //   deviceId = e.target.value;
 //   fetchDeviceStatus(deviceId);
 // });
+
+socket.onmessage = (event) => {
+  try {
+    const data = JSON.parse(event.data);
+
+    if (data.people_count !== undefined) {
+      document.getElementById(
+        "people-count"
+      ).textContent = `👥 People: ${data.people_count}`;
+    }
+
+    if (data.channels) {
+      deviceStates = Array.isArray(data.channels)
+        ? data.channels
+        : [0, 1, 2, 3].map((i) => !!data.channels[i]);
+      updateUI();
+    }
+  } catch (err) {
+    console.error("❌ Error parsing WebSocket data:", err);
+  }
+};
+
 
 async function loadInitialDeviceState() {
   try {
@@ -285,10 +307,13 @@ async function fetchDeviceStatus() {
     const statusEl = document.getElementById("device-status");
     if (!deviceId) {
       statusEl.textContent = "⚠️ No device registered";
+      console.log ("⚠️ No device registered");
     } else if (deviceOnline) {
       statusEl.textContent = `🟢 Device (${deviceId}) is online`;
+      console.log(`🟢 Device (${deviceId}) is online`);
     } else {
       statusEl.textContent = `🔴 Device (${deviceId}) is offline`;
+      console.log(`🔴 Device (${deviceId}) is offline`);
     }
 
     // Update channel states if returned
@@ -300,6 +325,7 @@ async function fetchDeviceStatus() {
   } catch (err) {
     console.error("❌ Error fetching device status:", err);
     document.getElementById("device-status").textContent = "⚠️ Failed to load status";
+
   }
 }
 
@@ -323,12 +349,14 @@ function updateUI() {
     const on = !!deviceStates[index];
     if (!deviceOnline) {
       btn.textContent = `Channel ${index + 1} (Offline)`;
+      console.log(`Channel ${index + 1} (Offline)`);
       btn.className = "toggle-btn off";
     } else {
       btn.textContent = on
         ? `Turn OFF Channel ${index + 1}`
         : `Turn ON Channel ${index + 1}`;
       btn.className = on ? "toggle-btn on" : "toggle-btn off";
+      console.log(`Channel ${index + 1} is ${on ? "ON" : "OFF"}`);
     }
   });
 }
@@ -365,7 +393,7 @@ toggles.forEach((btn, index) => {
 // Load immediately + update every 10s
 document.addEventListener("DOMContentLoaded", () => {
   fetchDeviceStatus();
-  setInterval(fetchDeviceStatus, 10000);
+  setInterval(fetchDeviceStatus, 3000);
 });
 
 // document.addEventListener("DOMContentLoaded", () => {
@@ -609,6 +637,6 @@ function initCameraCheck() {
 document.addEventListener("DOMContentLoaded", initCameraCheck);
 
 
-setInterval(fetchNotifications, 10000); // Update every 10s
+setInterval(fetchNotifications, 5000); // Update every 10s
 fetchNotifications(); // Initial load
 
