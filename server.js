@@ -8,6 +8,7 @@ const { Pool } = require("pg");
 const http = require("http");
 const { initWebSocket } = require("./utils/websocket");
 const startDeviceStatusCron = require("./utils/deviceStatusCron");
+const { createProxyMiddleware } = require("http-proxy-middleware");
 
 require("dotenv").config();
 
@@ -159,6 +160,19 @@ app.get("/camera-url", async (req, res) => {
 
 // 🆕 Start WebSocket server
 initWebSocket(server);
+
+
+
+// Proxy camera stream
+app.use(
+  "/proxy-stream",
+  createProxyMiddleware({
+    target: process.env.CAMERA_STREAM_URL || "http://192.168.0.101:8080",
+    changeOrigin: true,
+    pathRewrite: { "^/proxy-stream": "" },
+  })
+);
+
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
