@@ -11,6 +11,7 @@ async function createTables() {
           profile_picture TEXT,
           otp TEXT NOT NULL,
           created_at TIMESTAMP DEFAULT NOW(),
+          camera_url TEXT,
           device_id TEXT
       );
     `);

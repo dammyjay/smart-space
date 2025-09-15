@@ -226,9 +226,10 @@ function openEditProfile() {
         user.email;
       document.querySelector("#edit-profile-form [name='device_id']").value =
         user.device_id;
+      document.querySelector("#edit-profile-form [name='camera_url']").value =
+        user.camera_url;
       document.getElementById("edit-profile-modal").style.display = "flex";
       document.getElementById("edit-profile-modal").classList.add("show");
-
     });
 }
 
@@ -330,19 +331,58 @@ async function fetchDeviceStatus() {
 }
 
 
-// function updateUI() {
-//   toggles.forEach((btn, index) => {
-//     if (!deviceOnline) {
-//       btn.textContent = `Channel ${index + 1} (Offline)`;
-//       btn.className = "toggle-btn off";
-//     } else {
-//       btn.textContent = deviceStates[index]
-//         ? `Turn OFF Channel ${index + 1}`
-//         : `Turn ON Channel ${index + 1}`;
-//       btn.className = deviceStates[index] ? "toggle-btn on" : "toggle-btn off";
-//     }
-//   });
+
+// function setManualCameraUrl() {
+//   const url = document.getElementById("manual-camera-url").value.trim();
+//   if (!url) return alert("Please enter a URL");
+
+//   document.getElementById("live-stream").src = url;
+//   document.getElementById("camera-status").textContent = "📹 Using manual URL";
+//   document.getElementById("camera-status").style.color = "blue";
 // }
+
+function setManualCameraUrl() {
+  const url = document.getElementById("manual-camera-url").value.trim();
+  const liveStreamEl = document.getElementById("live-stream");
+  const statusEl = document.getElementById("camera-status");
+
+  if (!url) {
+    alert("Please enter a stream URL");
+    return;
+  }
+
+  liveStreamEl.src = url;
+  statusEl.textContent = "📹 Using manual camera URL";
+  statusEl.style.color = "blue";
+}
+
+// Auto-load from DB/`/camera-url` at page load
+function initCameraFromDB() {
+  fetch("/camera-url")
+    .then((res) => res.json())
+    .then((data) => {
+      const liveStreamEl = document.getElementById("live-stream");
+      const statusEl = document.getElementById("camera-status");
+
+      if (data.url) {
+        liveStreamEl.src = data.url;
+        statusEl.textContent = "📹 Camera online";
+        statusEl.style.color = "green";
+      } else {
+        statusEl.textContent = "❌ Camera offline";
+        statusEl.style.color = "red";
+      }
+    })
+    .catch((err) => {
+      console.error("Camera fetch error:", err);
+      document.getElementById("camera-status").textContent =
+        "⚠️ Error loading camera";
+      document.getElementById("camera-status").style.color = "orange";
+    });
+}
+
+document.addEventListener("DOMContentLoaded", initCameraFromDB);
+
 
 function updateUI() {
   toggles.forEach((btn, index) => {

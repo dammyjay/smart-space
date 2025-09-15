@@ -252,10 +252,16 @@ exports.getProfile = async (req, res) => {
     const userId = req.session.user?.id;
     if (!userId) return res.status(401).send("Unauthorized");
 
+    // const result = await pool.query(
+    //   "SELECT full_name, email, device_id FROM users WHERE id = $1",
+    //   [userId]
+    // );
+
     const result = await pool.query(
-      "SELECT full_name, email, device_id FROM users WHERE id = $1",
+      "SELECT full_name, email, device_id, camera_url FROM users WHERE id = $1",
       [userId]
     );
+
 
     res.json(result.rows[0]);
   } catch (err) {
@@ -297,19 +303,67 @@ exports.getProfile = async (req, res) => {
 //   }
 // };
 
+// exports.postProfile = async (req, res) => {
+//   try {
+//     const userId = req.session.user?.id;
+//     if (!userId) return res.status(401).send("Unauthorized");
+
+//     const { full_name, email, device_id, camera_url } = req.body;
+
+//     // Update user info
+//     await pool.query(
+//       `UPDATE users
+//        SET full_name = $1, email = $2, device_id = $3, camera_url =$4
+//        WHERE id = $5`,
+//       [full_name, email, device_id, camera_url, userId]
+//     );
+
+//     // Ensure device entry is linked to user
+//     await pool.query(
+//       `INSERT INTO devices (device_id, user_id, is_default)
+//        VALUES ($1, $2, true)
+//        ON CONFLICT (device_id)
+//        DO UPDATE SET user_id = EXCLUDED.user_id`,
+//       [device_id, userId]
+//     );
+
+//     // Update session values
+//     req.session.user.full_name = full_name;
+//     req.session.user.email = email;
+//     req.session.user.device_id = device_id;
+//     req.session.user.camera_url = camera_url;
+
+//     // If it's an AJAX request (modal form via fetch)
+//     if (req.xhr || req.headers["content-type"]?.includes("application/json")) {
+//       return res.status(200).json({ success: true });
+//     }
+
+//     // Otherwise (normal form POST)
+//     return res.redirect("/dashboard");
+//   } catch (err) {
+//     console.error("❌ Update profile error:", err);
+//     if (req.xhr || req.headers["content-type"]?.includes("application/json")) {
+//       return res
+//         .status(500)
+//         .json({ success: false, error: "Server error updating profile." });
+//     }
+//     res.status(500).send("Server error updating profile.");
+//   }
+// };
+
 exports.postProfile = async (req, res) => {
   try {
     const userId = req.session.user?.id;
     if (!userId) return res.status(401).send("Unauthorized");
 
-    const { full_name, email, device_id } = req.body;
+    const { full_name, email, device_id, camera_url } = req.body;
 
-    // Update user info
+    // Update user info in DB
     await pool.query(
       `UPDATE users 
-       SET full_name = $1, email = $2, device_id = $3 
-       WHERE id = $4`,
-      [full_name, email, device_id, userId]
+       SET full_name = $1, email = $2, device_id = $3, camera_url = $4 
+       WHERE id = $5`,
+      [full_name, email, device_id, camera_url, userId]
     );
 
     // Ensure device entry is linked to user
@@ -321,17 +375,22 @@ exports.postProfile = async (req, res) => {
       [device_id, userId]
     );
 
-    // Update session values
+    // Update session
     req.session.user.full_name = full_name;
     req.session.user.email = email;
     req.session.user.device_id = device_id;
+    req.session.user.camera_url = camera_url;
 
-    // If it's an AJAX request (modal form via fetch)
+    // ✅ Update cache instantly
+    if (typeof cameraUrlCache !== "undefined") {
+      cameraUrlCache.set(userId, camera_url);
+    }
+
+    // If AJAX/fetch
     if (req.xhr || req.headers["content-type"]?.includes("application/json")) {
       return res.status(200).json({ success: true });
     }
 
-    // Otherwise (normal form POST)
     return res.redirect("/dashboard");
   } catch (err) {
     console.error("❌ Update profile error:", err);
@@ -343,4 +402,3 @@ exports.postProfile = async (req, res) => {
     res.status(500).send("Server error updating profile.");
   }
 };
-

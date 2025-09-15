@@ -106,19 +106,53 @@ async function isCameraOnline(url) {
 }
 
 // Camera URL endpoint
-app.get("/camera-url", async (req, res) => {
-  const cameraUrl = process.env.CAMERA_STREAM_URL;
+// app.get("/camera-url", async (req, res) => {
+//   const cameraUrl = process.env.CAMERA_STREAM_URL;
 
-  if (!cameraUrl) {
-    return res.status(500).json({ error: "Camera URL not set" });
+//   if (!cameraUrl) {
+//     return res.status(500).json({ error: "Camera URL not set" });
+//   }
+
+//   const online = await isCameraOnline(cameraUrl);
+
+//   if (online) {
+//     res.json({ url: cameraUrl });
+//   } else {
+//     res.json({ url: null });
+//   }
+// });
+
+// Poll the database for camera_url changes and cache the latest value per user
+const cameraUrlCache = new Map();
+
+async function pollCameraUrls() {
+  try {
+    const result = await pool.query("SELECT id, camera_url FROM users");
+    result.rows.forEach(row => {
+      cameraUrlCache.set(row.id, row.camera_url);
+    });
+  } catch (err) {
+    console.error("❌ Error polling camera URLs:", err);
   }
+}
 
-  const online = await isCameraOnline(cameraUrl);
+// Poll every 10 seconds (adjust as needed)
+setInterval(pollCameraUrls, 10000);
+pollCameraUrls(); // Initial load
 
-  if (online) {
+app.get("/camera-url", async (req, res) => {
+  try {
+    const userId = req.session.user?.id;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    // Use cached value if available, fallback to env
+    let cameraUrl = cameraUrlCache.get(userId) || process.env.CAMERA_STREAM_URL;
+    if (!cameraUrl) return res.json({ url: null });
+
     res.json({ url: cameraUrl });
-  } else {
-    res.json({ url: null });
+  } catch (err) {
+    console.error("❌ Camera URL fetch error:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
