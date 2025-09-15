@@ -15,7 +15,8 @@ body {
 
 .form-container {
     width: 90%;
-    max-width: 400px;
+    /* max-width: 400px; */
+    max-height: 1000px;
     padding: 30px;
     background: rgba(255, 255, 255,0.5);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -25,7 +26,7 @@ body {
 
 .form-container2 {
     width: 90%;
-    max-width: 400px;
+    /* max-width: 400px; */
     padding: 30px;
     /* background: rgba(255, 255, 255, 0.5); */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -173,7 +174,7 @@ img.logo {
 
 .home-screen {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100%;
